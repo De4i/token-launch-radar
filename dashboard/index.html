@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pre-Token Radar — implied launch value of protocols that record no token</title>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="mast-left">
+    <p class="eyebrow">Sealed DefiLlama snapshot · pre-token radar</p>
+    <h1 id="headline">Loading the sealed snapshot…</h1>
+    <p class="subline" id="subhead"></p>
+    <nav class="tabs" id="tabs">
+      <a href="#/board" data-tab="board">Board</a>
+      <a href="#/comparables" data-tab="comparables">Comparables</a>
+      <a href="#/method" data-tab="method">Method</a>
+    </nav>
+  </div>
+  <figure class="chart">
+    <canvas id="curve" width="760" height="300"></canvas>
+    <figcaption id="curvecaption"></figcaption>
+  </figure>
+</header>
+<section class="strip" id="strip"></section>
+<section class="controls" id="controls"></section>
+<main id="view"></main>
+<footer class="foot" id="foot"></footer>
+<script src="../data.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
