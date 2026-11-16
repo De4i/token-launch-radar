@@ -187,8 +187,11 @@ const rows = rowSources.map((p) => {
     rank: 0, implied_value_usd: m.value,
     low: Math.round(m.value * quantile(0.25)), high: Math.round(m.value * quantile(0.75)),
     model: m, watch: watch.has(p.slug), farm_steps: plan.steps, plan,
-    scenario_net: Math.round((upside - plan.gas) * 100) / 100,
-    break_even: Math.round(plan.gas * p.tvl_usd / (m.value * SHARE)),
+    scenario_gross: upside,
+    opportunity_cost: TEST_CAPITAL * 0.04 * HOLD_DAYS / 365,
+    scenario_net: Math.round((upside - plan.gas - TEST_CAPITAL * 0.04 * HOLD_DAYS / 365) * 100) / 100,
+    verdict: upside - plan.gas - TEST_CAPITAL * 0.04 * HOLD_DAYS / 365 > 10 ? 'farm' : upside - plan.gas - TEST_CAPITAL * 0.04 * HOLD_DAYS / 365 > 0 ? 'thin' : 'skip',
+    break_even: m.value * SHARE / p.tvl_usd > 0.04 * HOLD_DAYS / 365 ? Math.ceil(plan.gas / (m.value * SHARE / p.tvl_usd - 0.04 * HOLD_DAYS / 365)) : null,
   };
 }).sort((a, b) => b.implied_value_usd - a.implied_value_usd || a.slug.localeCompare(b.slug));
 rows.forEach((r, i) => { r.rank = i + 1; });

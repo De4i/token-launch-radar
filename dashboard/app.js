@@ -27,6 +27,7 @@
     card('Median comparable', S.globalMultiple.toFixed(2) + '×', 'market cap per $1 of TVL, live rows') +
     card('Worth farming at size', S.worthFarming + ' of ' + S.rows, 'rows covering a $' + S.testCapital.toLocaleString('en-US') + ' position after gas');
 
+  $('strip').insertAdjacentHTML('afterend', '<div class="note" id="scenario-summary"><b>Farm / thin / skip: ' + ['farm','thin','skip'].map(function(v){return R.rows.filter(function(r){return r.verdict===v;}).length;}).join(' / ') + '</b> · $1,000 scenario, 30 days, 3% hypothetical allocation. Net subtracts gas and 4% annual alternative yield (assumption). No airdrop guaranteed.</div>');
   // ---- the fitted curve -------------------------------------------------------------------------
   (function curve() {
     var c = $('curve'), x = c.getContext('2d'), W = c.width, H = c.height, pad = 44;
@@ -45,7 +46,7 @@
     x.strokeStyle = '#f0b429'; x.lineWidth = 2; x.beginPath();
     for (var v = minx; v <= maxx; v += 0.05) {
       var lnTvl = v * Math.LN10;
-      var lmcap = B[0] + (1 + B[1]) * lnTvl + B[2] * ageMid;
+      var lmcap = B[0] + (1 + B[1]) * lnTvl + B[2] * Math.log1p(ageMid);
       var y = lmcap / Math.LN10;
       if (v === minx) x.moveTo(X(v), Y(y)); else x.lineTo(X(v), Y(y));
     }
@@ -127,7 +128,7 @@
         '<td class="num">' + usd(r.tvl_usd) + '</td>' +
         '<td class="num ' + ((r.change_7d || 0) >= 0 ? 'pos' : 'neg') + '">' + pct(r.change_7d) + '</td>' +
         '<td class="num"><span class="val">' + usd(r.implied_value_usd) + '</span><div class="band">' + usd(r.low) + '–' + usd(r.high) + '</div><div class="bar" style="width:' + Math.max(4, r.implied_value_usd / max * 100).toFixed(1) + '%"></div></td>' +
-        '<td class="num ' + (r.scenario_net > 0 ? 'pos' : 'neg') + '">' + (r.scenario_net > 0 ? 'pays ' : 'needs ') + money(Math.abs(r.scenario_net)) + '<div class="band">break-even $' + r.break_even.toLocaleString('en-US') + '</div></td>' +
+        '<td class="num ' + (r.scenario_net > 0 ? 'pos' : 'neg') + '">' + (r.verdict + ' ') + (r.scenario_net < 0 ? '−' : '+') + money(Math.abs(r.scenario_net)) + '<div class="band">break-even $' + (r.break_even === null ? 'unreachable' : r.break_even.toLocaleString('en-US')) + '</div></td>' +
         '<td class="plan">' + esc(r.plan.chain) + ' · ' + esc(r.plan.short) + ' · ' + esc(r.plan.capitalLine) + ' · ' + esc(r.plan.holdLine) + ' · $' + r.plan.gas + ' gas</td>' +
         '</tr>';
     });
@@ -165,7 +166,7 @@
     r.farm_steps.forEach(function (s) { h += '<li>' + esc(s) + '</li>'; });
     h += '</ol>';
     h += '<p class="subline">At a $' + S.testCapital.toLocaleString('en-US') + ' position the model implies ' + money(Math.abs(r.scenario_net)) + ' net of the plan’s own $' + r.plan.gas +
-      ' of cost (' + (r.scenario_net > 0 ? 'it pays' : 'it needs a bigger position') + '; break-even near $' + r.break_even.toLocaleString('en-US') + ') on the ' + (S.share * 100) +
+      ' of cost (' + (r.scenario_net > 0 ? 'it pays' : 'it needs a bigger position') + '; break-even near $' + (r.break_even === null ? 'unreachable' : r.break_even.toLocaleString('en-US')) + ') on the ' + (S.share * 100) +
       '% community-allocation assumption this board states. Rewards may never come and the principal can be lost.</p>';
     if (peers.length) {
       h += '<h3>Its comparables, from the snapshot’s own live rows</h3><table><thead><tr><th>Protocol</th><th>Category</th><th class="num">TVL</th><th class="num">Market cap</th><th class="num">×</th></tr></thead><tbody>';
@@ -252,5 +253,6 @@
   $('foot').innerHTML = S.rows + '/' + S.rows + ' board rows agree with board.json · watchlist ' + S.watch + '/' + S.watch + ' covered · ' +
     'sealed input sha256 <span class="mono">' + R.sha256.slice(0, 16) + '…</span> read, never written · snapshot ' + esc(R.as_of) +
     ' · ' + R.live.length + ' live comparables fitted · values are comparables derived from the snapshot, not forecasts, and not financial advice.';
+  $('foot').insertAdjacentHTML('beforebegin', '<aside class="note">Scenario assumptions, not live quotes: $1,000 capital; 30 days; 3% hypothetical community allocation pro rata to TVL; network fees per plan; 4% annual alternative yield (illustrative, not a current T-bill quote). Net = hypothetical allocation − gas − foregone yield. Farm: net > $10; thin: $0–$10; skip: net ≤ $0. No eligibility or distribution is guaranteed.</aside>');
   render();
 })();
